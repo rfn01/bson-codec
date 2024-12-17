@@ -4,6 +4,7 @@ import Data.Bson.Codec
 
 import Test.Hspec
 import Data.Bson qualified as B
+import Data.Bson (Field((:=)))
 
 
 --------------------------------------------------------------------------------
@@ -19,7 +20,7 @@ simpleSpec = do
   describe "simple" $ do
     let
       h = Simple "one" 1
-      d = ["text" B.:= B.String "one", "int" B.:= B.Int64 1]
+      d = ["text" := B.String "one", "int" := B.Int64 1]
     it "can encode" $ do
       encode simpleCodec h `shouldBe` d
 
@@ -27,11 +28,11 @@ simpleSpec = do
       decode simpleCodec d `shouldBe` Right h
 
     it "can fail decode" $ do
-      decode simpleCodec ["text" B.:= B.String "one", "int" B.:= B.String "1"]
+      decode simpleCodec ["text" := B.String "one", "int" := B.String "1"]
         `shouldSatisfy` isLeft
 
     it "does fail null" $ do
-      decode simpleCodec ["text" B.:= B.Null, "int" B.:= B.Int64 1]
+      decode simpleCodec ["text" := B.Null, "int" := B.Int64 1]
         `shouldSatisfy` isLeft
 
 --------------------------------------------------------------------------------
@@ -47,7 +48,7 @@ wrappedSpec = do
   describe "wrapped" $ do
     let
       h = Wrapped "one" (I 1)
-      d = ["text" B.:= B.String "one", "int" B.:= B.Int64 1]
+      d = ["text" := B.String "one", "int" := B.Int64 1]
     it "can encode" $ do
       encode wrappedCodec h `shouldBe` d
 
@@ -55,7 +56,7 @@ wrappedSpec = do
       decode wrappedCodec d `shouldBe` Right h
 
     it "can fail decode" $ do
-      decode wrappedCodec ["text" B.:= B.String "one", "int" B.:= B.String "1"]
+      decode wrappedCodec ["text" := B.String "one", "int" := B.String "1"]
         `shouldSatisfy` isLeft
 
 --------------------------------------------------------------------------------
@@ -73,8 +74,8 @@ maybeSpec = do
   describe "maybe" $ do
     let
       h = WMaybe "one" (Just 1) Nothing
-      n = ["text" B.:= B.String "one", "just" B.:= B.Int64 1, "nothing" B.:= B.Null]
-      o = ["text" B.:= B.String "one" , "just" B.:= B.Int64 1]
+      n = ["text" := B.String "one", "just" := B.Int64 1, "nothing" := B.Null]
+      o = ["text" := B.String "one" , "just" := B.Int64 1]
       
     describe "nullable" $ do
       it "can encode" $ do
@@ -88,7 +89,7 @@ maybeSpec = do
         decode nullableCodec o `shouldSatisfy` isLeft
 
       it "can fail decode" $ do
-        decode nullableCodec ["text" B.:= B.String "one", "just" B.:= B.String "1", "nothing" B.:= B.Null]
+        decode nullableCodec ["text" := B.String "one", "just" := B.String "1", "nothing" := B.Null]
           `shouldSatisfy` isLeft
 
     describe "omittable" $ do
@@ -103,7 +104,7 @@ maybeSpec = do
         decode omittableCodec n `shouldBe` Right h
 
       it "can fail decode" $ do
-        decode omittableCodec ["text" B.:= B.String "one", "just" B.:= B.String "1"]
+        decode omittableCodec ["text" := B.String "one", "just" := B.String "1"]
           `shouldSatisfy` isLeft
 
 --------------------------------------------------------------------------------
@@ -117,7 +118,7 @@ rawlistSpec = do
   describe "rawlist" $ do
     let
       h = RawList "one" [1,2,3]
-      d = ["text" B.:= B.String "one", "ints" B.:= B.Array [B.Int64 1, B.Int64 2, B.Int64 3]]
+      d = ["text" := B.String "one", "ints" := B.Array [B.Int64 1, B.Int64 2, B.Int64 3]]
     it "can encode" $ do
       encode rawlistCodec h `shouldBe` d
 
@@ -143,7 +144,7 @@ wrappedlistSpec = do
   describe "wrappedlist" $ do
     let
       h = WrappedList "one" [J 1,J 2,J 3]
-      d = ["text" B.:= B.String "one", "ints" B.:= B.Array [B.Int64 1, B.Int64 2, B.Int64 3]]
+      d = ["text" := B.String "one", "ints" := B.Array [B.Int64 1, B.Int64 2, B.Int64 3]]
     it "can encode" $ do
       encode wrappedlistCodec h `shouldBe` d
 
@@ -173,7 +174,7 @@ nestedSpec = do
     let
       hi = NestInner "two" 2
       ho = NestOuter "one" hi
-      d = ["text" B.:= B.String "one", "inner" B.:= B.Doc ["text" B.:= B.String "two", "int" B.:= B.Int64 2]]
+      d = ["text" := B.String "one", "inner" := B.Doc ["text" := B.String "two", "int" := B.Int64 2]]
     it "can encode" $ do
       encode nestOuterCodec ho `shouldBe` d
 
@@ -192,15 +193,90 @@ nestedListSpec = do
     let
       hi = [NestInner "two" 2, NestInner "three" 3]
       ho = ListOuter "one" hi
-      d = ["text" B.:= B.String "one"
-          , "inners" B.:= B.Array [ B.Doc ["text" B.:= B.String "two", "int" B.:= B.Int64 2]
-                                  , B.Doc ["text" B.:= B.String "three", "int" B.:= B.Int64 3]
+      d = ["text" := B.String "one"
+          , "inners" := B.Array [ B.Doc ["text" := B.String "two", "int" := B.Int64 2]
+                                  , B.Doc ["text" := B.String "three", "int" := B.Int64 3]
                                   ]]
     it "can encode" $ do
       encode listOuterCodec ho `shouldBe` d
 
     it "can decode" $ do
       decode listOuterCodec d `shouldBe` Right ho
+
+--------------------------------------------------------------------------------
+data Foo = Foo { fText :: !Text, fInt :: !Int64 } deriving stock (Eq, Show)
+
+fooCodec :: BsonCodec Foo
+fooCodec =do
+  t <- field @Text "type" =. const "foo"
+  guard (t == "foo")
+  Foo
+    <$> field "text" =. fText
+    <*> field "int" =. fInt
+
+fooSpec :: Spec
+fooSpec = do
+  describe "WIP static" $ do
+    let
+      h = Foo "one" 1
+      d = [ "type" := B.String "foo"
+          , "text" := B.String "one"
+          , "int" := B.Int64 1]
+    it "can encode" $ do
+      encode fooCodec h `shouldBe` d
+
+    it "can decode" $ do
+      decode fooCodec d `shouldBe` Right h
+
+data Bar = BarA Text Int64 | BarB Int64 Text deriving stock (Eq, Show)
+
+data ProjectBarA = ProjectBarA { pbaText :: !Text, pbaInt :: !Int64 } deriving stock (Eq, Show)
+data ProjectBarB = ProjectBarB { pbbInt :: !Int64, pbbText :: !Text } deriving stock (Eq, Show)
+
+projectBarA :: Bar -> Maybe ProjectBarA
+projectBarA (BarA t i) = Just $ ProjectBarA t i
+projectBarA _          = Nothing
+
+projectBarB :: Bar -> Maybe ProjectBarB
+projectBarB (BarB i t) = Just $ ProjectBarB i t
+projectBarB _          = Nothing
+
+barCodec :: BsonCodec Bar
+barCodec =do
+  t <- field @Text "type" =. \case
+    BarA {} -> "a"
+    BarB {} -> "b"
+  case t of
+    "a" -> BarA
+           <$> field "texta" =. (\case
+                                    BarA t _ -> t
+                                    _ -> error "invalid"
+                                )
+           <*> field "inta" =. (\case
+                                   BarA _ i -> i
+                                   _ -> error "invalid"
+                               )
+    "b" -> BarB <$> field "intb" =. const 1 <*> field "textb" =. const "one"
+
+-- it's interesting that it works, but it's ugly.
+-- perhsps some way to map a non-record type into k/v pairs.
+-- perhaps some way to use <|> for read/write
+-- perhaps a combiner to help with fixed values that fails if it doesn't match
+
+barSpec :: Spec
+barSpec = do
+  describe "WIP sum types" $ do
+    let
+      h = BarA "one" 1
+      d = [ "type" := B.String "a"
+          , "texta" := B.String "one"
+          , "inta" := B.Int64 1]
+    it "can encode" $ do
+      encode barCodec h `shouldBe` d
+
+    it "can decode" $ do
+      decode barCodec d `shouldBe` Right h
+
 
 
 main :: IO ()
@@ -212,3 +288,5 @@ main = hspec $ do
   wrappedlistSpec
   nestedSpec
   nestedListSpec
+  fooSpec
+  barSpec
