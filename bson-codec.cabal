@@ -1,0 +1,119 @@
+cabal-version:      2.4
+name:               bson-codec
+version:            0
+license-file:       LICENSE
+copyright:          2024 Rob Nichols
+author:             Rob Nichols
+maintainer:         Rob Nichols <rob@robnet.com>
+synopsis:           Reusable
+extra-source-files: LICENSE
+
+common common-options
+  default-language:   Haskell2010
+  ghc-options:
+    -Wall -Wincomplete-record-updates -Wincomplete-uni-patterns
+    -Wmissing-deriving-strategies -Wunused-foralls
+    -fprint-explicit-foralls -fprint-explicit-kinds -Wcompat
+    -Widentities -Wredundant-constraints -Wpartial-fields
+    -fhide-source-paths -Wwarn=deprecations -threaded
+
+  --  -Werror
+  --  -O2
+  --  -fno-warn-unused-top-binds
+  --  -fno-warn-unused-imports
+  --  -fno-warn-unused-local-binds
+  --  -fno-warn-unused-matches
+  --  -fno-warn-redundant-constraints
+  --  -rtsopts
+  --  -with-rtsopts=-N
+
+  mixins:
+    base hiding (Prelude),
+    relude (Relude as Prelude, Relude.Container.One),
+    relude
+
+  default-extensions:
+    BangPatterns
+    ConstraintKinds
+    DataKinds
+    DeriveDataTypeable
+    DeriveFoldable
+    DeriveFunctor
+    DeriveGeneric
+    DeriveLift
+    DeriveTraversable
+    DerivingStrategies
+    DerivingVia
+    EmptyCase
+    EmptyDataDecls
+    EmptyDataDeriving
+    ExistentialQuantification
+    ExplicitForAll
+    FlexibleContexts
+    FlexibleInstances
+    FunctionalDependencies
+    GADTSyntax
+    GeneralisedNewtypeDeriving
+    ImportQualifiedPost
+    InstanceSigs
+    KindSignatures
+    LambdaCase
+    MultiParamTypeClasses
+    MultiWayIf
+    NoStarIsType
+    NumericUnderscores
+    OverloadedStrings
+    PolyKinds
+    PostfixOperators
+    QuasiQuotes
+    RankNTypes
+    RecordWildCards
+    ScopedTypeVariables
+    StandaloneDeriving
+    StandaloneKindSignatures
+    TemplateHaskell
+    TupleSections
+    TypeApplications
+    TypeFamilies
+    TypeOperators
+    ViewPatterns
+
+  build-depends:
+    , aeson
+    , async
+    , base          >=4.13.0.0 && <4.19.0.0.0
+    , data-default
+    , directory
+    , filepath
+    , lens
+    , mtl
+    , profunctors
+    , relude        >=1.0
+    , shower
+    , time
+    , with-utf8
+
+library
+  import:          common-options
+  hs-source-dirs:  src
+  exposed-modules:
+    Data.Bson.Codec
+    Data.Bson.Codec.Core
+
+  build-depends:
+    , bson
+    , profunctors
+    , transformers
+
+test-suite bson-codec-tests
+  import:         common-options
+  type:           exitcode-stdio-1.0
+  hs-source-dirs: test
+  main-is:        Main.hs
+  build-depends:
+    , hedgehog
+    , hspec
+    , bson
+    , profunctors
+    , transformers
+    , bson-codec
