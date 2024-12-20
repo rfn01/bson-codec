@@ -110,10 +110,15 @@ test-suite bson-codec-tests
   type:           exitcode-stdio-1.0
   hs-source-dirs: test
   main-is:        Main.hs
+  other-modules:
+    Simple
+    Sum
+    Value
+
   build-depends:
+    , bson
+    , bson-codec
     , hedgehog
     , hspec
-    , bson
     , profunctors
     , transformers
-    , bson-codec
