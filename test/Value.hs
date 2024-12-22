@@ -2,6 +2,11 @@ module Value (valueSpec) where
 
 import Data.Bson.Codec
 
+import Data.Either (isLeft)
+import Data.Int (Int64)
+import Data.Text (Text, unpack, pack)
+import Text.Read (readMaybe)
+
 import Test.Hspec
 import Data.Bson qualified as B
 import Data.Bson (Field((:=)))
@@ -69,13 +74,13 @@ asColor :: ValueCodec Color
 asColor =  as inject project
   where 
     inject :: Color -> Maybe B.Value
-    inject = pure . B.String . show
+    inject = pure . B.String . pack . show
 
     project :: B.Value -> Maybe Color
     project v = (case v of
                     B.String t -> Just t
                     _ -> Nothing)
-                >>= readMaybe . toString
+                >>= readMaybe . unpack
 
 asColorCodec :: BsonCodec AsColor
 asColorCodec = AsColor <$> aText =. field "text" <*> aColor =. label "color" asColor

@@ -2,6 +2,11 @@ module Simple (simpleSpec) where
 
 import Data.Bson.Codec
 
+import Data.Either (isLeft)
+import Data.Either.Combinators (rightToMaybe)
+import Data.Int (Int64)
+import Data.Text (Text)
+
 import Test.Hspec
 import Data.Bson qualified as B
 import Data.Bson (Field((:=)))

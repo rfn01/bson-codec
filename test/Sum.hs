@@ -2,6 +2,11 @@ module Sum (sumSpec) where
 
 import Data.Bson.Codec
 
+import Control.Applicative ((<|>))
+import Data.Either (isLeft)
+import Data.Int (Int64)
+import Data.Text (Text)
+
 import Test.Hspec
 import Data.Bson qualified as B
 import Data.Bson (Field((:=)))

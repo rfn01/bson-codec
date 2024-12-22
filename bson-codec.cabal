@@ -27,11 +27,6 @@ common common-options
   --  -rtsopts
   --  -with-rtsopts=-N
 
-  mixins:
-    base hiding (Prelude),
-    relude (Relude as Prelude, Relude.Container.One),
-    relude
-
   default-extensions:
     BangPatterns
     ConstraintKinds
@@ -79,30 +74,21 @@ common common-options
     ViewPatterns
 
   build-depends:
-    , aeson
-    , async
     , base          >=4.13.0.0 && <4.19.0.0.0
-    , data-default
-    , directory
-    , filepath
     , lens
     , mtl
     , profunctors
-    , relude        >=1.0
-    , shower
-    , time
-    , with-utf8
 
 library
   import:          common-options
   hs-source-dirs:  src
-  exposed-modules:
-    Data.Bson.Codec
-    Data.Bson.Codec.Core
-
+  exposed-modules: Data.Bson.Codec
+  other-modules:   Data.Bson.Codec.Core Data.Bson.Codec.FixEither
   build-depends:
     , bson
+    , either
     , profunctors
+    , text
     , transformers
 
 test-suite bson-codec-tests
@@ -118,7 +104,8 @@ test-suite bson-codec-tests
   build-depends:
     , bson
     , bson-codec
-    , hedgehog
+    , either
     , hspec
     , profunctors
     , transformers
+    , text

@@ -18,9 +18,20 @@ module Data.Bson.Codec
 
 import Data.Bson.Codec.Core
 
+import Control.Applicative (empty)
+import Control.Monad (guard)
+import Control.Monad.Trans.Except (ExceptT(..), runExceptT)
+import Control.Monad.Trans.Reader (Reader, reader, runReader)
+import Data.Bson.Codec.FixEither ()
+import Data.Coerce (Coercible, coerce)
+import Data.Either.Combinators (maybeToRight)
+import Data.Maybe (fromMaybe)
+import Data.Monoid (Last(..))
+import Data.Text (Text)
+
 import Control.Monad.Trans.Writer.CPS (WriterT, execWriterT, writerT)
 import Control.Monad.Trans.Writer.CPS (Writer, execWriter, writer)
-import Data.Bson (Document, (=:), (=?), Value, Val, Label, look, lookup, cast)
+import Data.Bson (Document, (=:), (=?), Value, Val, Label)
 import Data.Bson qualified as B
 import Data.Profunctor (lmap, dimap)
 
@@ -34,7 +45,7 @@ type BsonCodec a = Codec (ExceptT Text (Reader Document)) (WriterT Document Mayb
 field :: forall a. Val a => Label -> BsonCodec a
 field l = Codec r w
   where
-    r = ExceptT $ reader (lookup l)
+    r = ExceptT $ reader (B.lookup l)
     w a = writerT $ pure (a, [l =: a])
 
 -- omits Nothing fields, but can parse Null or omitted
@@ -43,9 +54,9 @@ fieldOmit :: forall a. Val a => Label -> BsonCodec (Maybe a)
 fieldOmit l = Codec r w
   where
     r = ExceptT $ reader (\d ->
-                            case look l d of
+                            case B.look l d of
                               Nothing -> Right Nothing
-                              Just a -> cast a
+                              Just a -> B.cast a
                          )
     w a = writerT $ pure (a, l =? a)
 
@@ -107,7 +118,7 @@ label :: Label -> ValueCodec a -> BsonCodec a
 label l inner = Codec r w
   where
     r = ExceptT $ reader (\d ->
-                            case look l d of
+                            case B.look l d of
                               Nothing -> Left $ "label " <> l <> " not found"
                               Just v -> decodeValue inner v
                          )

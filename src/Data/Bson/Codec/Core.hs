@@ -7,7 +7,11 @@ and tomland packages.  Can I do that for Bson?  Let's try!
 
  -}
 
+import Control.Applicative (Alternative, empty, (<|>))
+import Data.Kind (Type)
+
 import Data.Profunctor
+
 
 data Codec (r :: Type -> Type) (w :: Type -> Type) x a = Codec
   { codecReader :: r a
