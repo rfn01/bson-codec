@@ -28,50 +28,14 @@ common common-options
   --  -with-rtsopts=-N
 
   default-extensions:
-    BangPatterns
-    ConstraintKinds
-    DataKinds
-    DeriveDataTypeable
-    DeriveFoldable
-    DeriveFunctor
-    DeriveGeneric
-    DeriveLift
-    DeriveTraversable
-    DerivingStrategies
-    DerivingVia
-    EmptyCase
-    EmptyDataDecls
-    EmptyDataDeriving
-    ExistentialQuantification
     ExplicitForAll
-    FlexibleContexts
-    FlexibleInstances
-    FunctionalDependencies
-    GADTSyntax
-    GeneralisedNewtypeDeriving
     ImportQualifiedPost
     InstanceSigs
     KindSignatures
     LambdaCase
-    MultiParamTypeClasses
-    MultiWayIf
-    NoStarIsType
-    NumericUnderscores
     OverloadedStrings
-    PolyKinds
-    PostfixOperators
-    QuasiQuotes
-    RankNTypes
     RecordWildCards
-    ScopedTypeVariables
-    StandaloneDeriving
-    StandaloneKindSignatures
-    TemplateHaskell
-    TupleSections
     TypeApplications
-    TypeFamilies
-    TypeOperators
-    ViewPatterns
 
   build-depends:
     , base          >=4.13.0.0 && <4.19.0.0.0
