@@ -28,7 +28,9 @@ common common-options
   --  -with-rtsopts=-N
 
   default-extensions:
+    DerivingStrategies
     ExplicitForAll
+    GeneralisedNewtypeDeriving
     ImportQualifiedPost
     InstanceSigs
     KindSignatures
